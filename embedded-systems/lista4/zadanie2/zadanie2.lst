@@ -1,0 +1,332 @@
+
+zadanie2.elf:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .data         00000042  00800100  00000216  0000028a  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  1 .text         00000216  00000000  00000000  00000074  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  2 .stab         000006a8  00000000  00000000  000002cc  2**2
+                  CONTENTS, READONLY, DEBUGGING
+  3 .stabstr      00000cbc  00000000  00000000  00000974  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  4 .comment      00000011  00000000  00000000  00001630  2**0
+                  CONTENTS, READONLY
+  5 .note.gnu.avr.deviceinfo 00000040  00000000  00000000  00001644  2**2
+                  CONTENTS, READONLY
+  6 .debug_info   000005f4  00000000  00000000  00001684  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  7 .debug_abbrev 000005a2  00000000  00000000  00001c78  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  8 .debug_line   0000001a  00000000  00000000  0000221a  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  9 .debug_str    00000208  00000000  00000000  00002234  2**0
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .text:
+
+00000000 <__vectors>:
+   0:	0c 94 34 00 	jmp	0x68	; 0x68 <__ctors_end>
+   4:	0c 94 49 00 	jmp	0x92	; 0x92 <__bad_interrupt>
+   8:	0c 94 49 00 	jmp	0x92	; 0x92 <__bad_interrupt>
+   c:	0c 94 49 00 	jmp	0x92	; 0x92 <__bad_interrupt>
+  10:	0c 94 49 00 	jmp	0x92	; 0x92 <__bad_interrupt>
+  14:	0c 94 49 00 	jmp	0x92	; 0x92 <__bad_interrupt>
+  18:	0c 94 49 00 	jmp	0x92	; 0x92 <__bad_interrupt>
+  1c:	0c 94 49 00 	jmp	0x92	; 0x92 <__bad_interrupt>
+  20:	0c 94 49 00 	jmp	0x92	; 0x92 <__bad_interrupt>
+  24:	0c 94 49 00 	jmp	0x92	; 0x92 <__bad_interrupt>
+  28:	0c 94 49 00 	jmp	0x92	; 0x92 <__bad_interrupt>
+  2c:	0c 94 49 00 	jmp	0x92	; 0x92 <__bad_interrupt>
+  30:	0c 94 49 00 	jmp	0x92	; 0x92 <__bad_interrupt>
+  34:	0c 94 49 00 	jmp	0x92	; 0x92 <__bad_interrupt>
+  38:	0c 94 49 00 	jmp	0x92	; 0x92 <__bad_interrupt>
+  3c:	0c 94 49 00 	jmp	0x92	; 0x92 <__bad_interrupt>
+  40:	0c 94 49 00 	jmp	0x92	; 0x92 <__bad_interrupt>
+  44:	0c 94 49 00 	jmp	0x92	; 0x92 <__bad_interrupt>
+  48:	0c 94 49 00 	jmp	0x92	; 0x92 <__bad_interrupt>
+  4c:	0c 94 49 00 	jmp	0x92	; 0x92 <__bad_interrupt>
+  50:	0c 94 49 00 	jmp	0x92	; 0x92 <__bad_interrupt>
+  54:	0c 94 49 00 	jmp	0x92	; 0x92 <__bad_interrupt>
+  58:	0c 94 49 00 	jmp	0x92	; 0x92 <__bad_interrupt>
+  5c:	0c 94 49 00 	jmp	0x92	; 0x92 <__bad_interrupt>
+  60:	0c 94 49 00 	jmp	0x92	; 0x92 <__bad_interrupt>
+  64:	0c 94 49 00 	jmp	0x92	; 0x92 <__bad_interrupt>
+
+00000068 <__ctors_end>:
+  68:	11 24       	eor	r1, r1
+  6a:	1f be       	out	0x3f, r1	; 63
+  6c:	cf ef       	ldi	r28, 0xFF	; 255
+  6e:	d8 e0       	ldi	r29, 0x08	; 8
+  70:	de bf       	out	0x3e, r29	; 62
+  72:	cd bf       	out	0x3d, r28	; 61
+
+00000074 <__do_copy_data>:
+  74:	11 e0       	ldi	r17, 0x01	; 1
+  76:	a0 e0       	ldi	r26, 0x00	; 0
+  78:	b1 e0       	ldi	r27, 0x01	; 1
+  7a:	e6 e1       	ldi	r30, 0x16	; 22
+  7c:	f2 e0       	ldi	r31, 0x02	; 2
+  7e:	02 c0       	rjmp	.+4      	; 0x84 <__do_copy_data+0x10>
+  80:	05 90       	lpm	r0, Z+
+  82:	0d 92       	st	X+, r0
+  84:	a2 34       	cpi	r26, 0x42	; 66
+  86:	b1 07       	cpc	r27, r17
+  88:	d9 f7       	brne	.-10     	; 0x80 <__do_copy_data+0xc>
+  8a:	0e 94 67 00 	call	0xce	; 0xce <main>
+  8e:	0c 94 09 01 	jmp	0x212	; 0x212 <_exit>
+
+00000092 <__bad_interrupt>:
+  92:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
+
+00000096 <adc_init>:
+
+
+// inicjalizacja ADC
+void adc_init()
+{
+  ADMUX   = _BV(REFS0); // referencja AVcc, wejście ADC0
+  96:	80 e4       	ldi	r24, 0x40	; 64
+  98:	80 93 7c 00 	sts	0x007C, r24	; 0x80007c <__TEXT_REGION_LENGTH__+0x7f807c>
+  DIDR0   = _BV(ADC0D); // wyłącz wejście cyfrowe na ADC0
+  9c:	81 e0       	ldi	r24, 0x01	; 1
+  9e:	80 93 7e 00 	sts	0x007E, r24	; 0x80007e <__TEXT_REGION_LENGTH__+0x7f807e>
+  // częstotliwość zegara ADC 125 kHz (16 MHz / 128)
+  ADCSRA  = _BV(ADPS0) | _BV(ADPS1) | _BV(ADPS2); // preskaler 128
+  a2:	ea e7       	ldi	r30, 0x7A	; 122
+  a4:	f0 e0       	ldi	r31, 0x00	; 0
+  a6:	87 e0       	ldi	r24, 0x07	; 7
+  a8:	80 83       	st	Z, r24
+  ADCSRA |= _BV(ADEN); // włącz ADC
+  aa:	80 81       	ld	r24, Z
+  ac:	80 68       	ori	r24, 0x80	; 128
+  ae:	80 83       	st	Z, r24
+  b0:	08 95       	ret
+
+000000b2 <timer1_init>:
+  // WGM1  = 1110 -- fast PWM top=ICR1
+  // CS1   = 101  -- prescaler 1024
+  // ICR1  = 15624
+  // częstotliwość 16e6/(8*(1+1999)) = 1 kHz
+  // wzór: datasheet 20.12.3 str. 164
+  ICR1 = 1999;
+  b2:	8f ec       	ldi	r24, 0xCF	; 207
+  b4:	97 e0       	ldi	r25, 0x07	; 7
+  b6:	90 93 87 00 	sts	0x0087, r25	; 0x800087 <__TEXT_REGION_LENGTH__+0x7f8087>
+  ba:	80 93 86 00 	sts	0x0086, r24	; 0x800086 <__TEXT_REGION_LENGTH__+0x7f8086>
+  TCCR1A = _BV(COM1A1) | _BV(WGM11);
+  be:	82 e8       	ldi	r24, 0x82	; 130
+  c0:	80 93 80 00 	sts	0x0080, r24	; 0x800080 <__TEXT_REGION_LENGTH__+0x7f8080>
+  TCCR1B = _BV(WGM12) | _BV(WGM13) | _BV(CS11);
+  c4:	8a e1       	ldi	r24, 0x1A	; 26
+  c6:	80 93 81 00 	sts	0x0081, r24	; 0x800081 <__TEXT_REGION_LENGTH__+0x7f8081>
+  // ustaw pin OC1A (PB1) jako wyjście
+  DDRB |= _BV(PB1);
+  ca:	21 9a       	sbi	0x04, 1	; 4
+  cc:	08 95       	ret
+
+000000ce <main>:
+}
+
+int main()
+{
+  ce:	cf 93       	push	r28
+  d0:	df 93       	push	r29
+  d2:	cd b7       	in	r28, 0x3d	; 61
+  d4:	de b7       	in	r29, 0x3e	; 62
+  d6:	c2 54       	subi	r28, 0x42	; 66
+  d8:	d1 09       	sbc	r29, r1
+  da:	0f b6       	in	r0, 0x3f	; 63
+  dc:	f8 94       	cli
+  de:	de bf       	out	0x3e, r29	; 62
+  e0:	0f be       	out	0x3f, r0	; 63
+  e2:	cd bf       	out	0x3d, r28	; 61
+
+
+// inicjalizacja ADC
+void adc_init()
+{
+  ADMUX   = _BV(REFS0); // referencja AVcc, wejście ADC0
+  e4:	80 e4       	ldi	r24, 0x40	; 64
+  e6:	80 93 7c 00 	sts	0x007C, r24	; 0x80007c <__TEXT_REGION_LENGTH__+0x7f807c>
+  DIDR0   = _BV(ADC0D); // wyłącz wejście cyfrowe na ADC0
+  ea:	81 e0       	ldi	r24, 0x01	; 1
+  ec:	80 93 7e 00 	sts	0x007E, r24	; 0x80007e <__TEXT_REGION_LENGTH__+0x7f807e>
+  // częstotliwość zegara ADC 125 kHz (16 MHz / 128)
+  ADCSRA  = _BV(ADPS0) | _BV(ADPS1) | _BV(ADPS2); // preskaler 128
+  f0:	87 e0       	ldi	r24, 0x07	; 7
+  f2:	80 93 7a 00 	sts	0x007A, r24	; 0x80007a <__TEXT_REGION_LENGTH__+0x7f807a>
+  ADCSRA |= _BV(ADEN); // włącz ADC
+  f6:	80 91 7a 00 	lds	r24, 0x007A	; 0x80007a <__TEXT_REGION_LENGTH__+0x7f807a>
+  fa:	80 68       	ori	r24, 0x80	; 128
+  fc:	80 93 7a 00 	sts	0x007A, r24	; 0x80007a <__TEXT_REGION_LENGTH__+0x7f807a>
+  // WGM1  = 1110 -- fast PWM top=ICR1
+  // CS1   = 101  -- prescaler 1024
+  // ICR1  = 15624
+  // częstotliwość 16e6/(8*(1+1999)) = 1 kHz
+  // wzór: datasheet 20.12.3 str. 164
+  ICR1 = 1999;
+ 100:	8f ec       	ldi	r24, 0xCF	; 207
+ 102:	97 e0       	ldi	r25, 0x07	; 7
+ 104:	90 93 87 00 	sts	0x0087, r25	; 0x800087 <__TEXT_REGION_LENGTH__+0x7f8087>
+ 108:	80 93 86 00 	sts	0x0086, r24	; 0x800086 <__TEXT_REGION_LENGTH__+0x7f8086>
+  TCCR1A = _BV(COM1A1) | _BV(WGM11);
+ 10c:	82 e8       	ldi	r24, 0x82	; 130
+ 10e:	80 93 80 00 	sts	0x0080, r24	; 0x800080 <__TEXT_REGION_LENGTH__+0x7f8080>
+  TCCR1B = _BV(WGM12) | _BV(WGM13) | _BV(CS11);
+ 112:	8a e1       	ldi	r24, 0x1A	; 26
+ 114:	80 93 81 00 	sts	0x0081, r24	; 0x800081 <__TEXT_REGION_LENGTH__+0x7f8081>
+  // ustaw pin OC1A (PB1) jako wyjście
+  DDRB |= _BV(PB1);
+ 118:	21 9a       	sbi	0x04, 1	; 4
+  // zainicjalizuj ADC
+  adc_init();
+  // zainicjalizuj licznik
+  timer1_init();
+  // wypełnienie 
+  uint16_t values[33] = {0, 7, 15, 24, 34, 45, 57, 71, 87, 104, 123, 145, 169, 196, 225, 259, 296, 337, 384, 435, 492, 557, 628, 708, 797, 896, 1007, 1131, 1269, 1422, 1594, 1785, 1999};
+ 11a:	82 e4       	ldi	r24, 0x42	; 66
+ 11c:	e0 e0       	ldi	r30, 0x00	; 0
+ 11e:	f1 e0       	ldi	r31, 0x01	; 1
+ 120:	de 01       	movw	r26, r28
+ 122:	11 96       	adiw	r26, 0x01	; 1
+ 124:	01 90       	ld	r0, Z+
+ 126:	0d 92       	st	X+, r0
+ 128:	8a 95       	dec	r24
+ 12a:	e1 f7       	brne	.-8      	; 0x124 <main+0x56>
+    if(v <= MIN_RANGE){
+      OCR1A = 0;
+    } else if (v >= MAX_RANGE){
+      OCR1A = ICR1;
+    } else {
+      OCR1A = values[(32 * ((uint32_t)v - MIN_RANGE) * 100 / (MAX_RANGE - MIN_RANGE)) / 100];
+ 12c:	90 e3       	ldi	r25, 0x30	; 48
+ 12e:	c9 2e       	mov	r12, r25
+ 130:	95 e7       	ldi	r25, 0x75	; 117
+ 132:	d9 2e       	mov	r13, r25
+ 134:	e1 2c       	mov	r14, r1
+ 136:	f1 2c       	mov	r15, r1
+  timer1_init();
+  // wypełnienie 
+  uint16_t values[33] = {0, 7, 15, 24, 34, 45, 57, 71, 87, 104, 123, 145, 169, 196, 225, 259, 296, 337, 384, 435, 492, 557, 628, 708, 797, 896, 1007, 1131, 1269, 1422, 1594, 1785, 1999};
+  
+  while(1) {
+    ADCSRA |= _BV(ADSC); // wykonaj konwersję
+ 138:	80 91 7a 00 	lds	r24, 0x007A	; 0x80007a <__TEXT_REGION_LENGTH__+0x7f807a>
+ 13c:	80 64       	ori	r24, 0x40	; 64
+ 13e:	80 93 7a 00 	sts	0x007A, r24	; 0x80007a <__TEXT_REGION_LENGTH__+0x7f807a>
+    loop_until_bit_is_clear(ADCSRA, ADSC); // czekaj na wykonanie pomiaru
+ 142:	80 91 7a 00 	lds	r24, 0x007A	; 0x80007a <__TEXT_REGION_LENGTH__+0x7f807a>
+ 146:	86 fd       	sbrc	r24, 6
+ 148:	fc cf       	rjmp	.-8      	; 0x142 <main+0x74>
+    uint16_t v = ADC; // weź zmierzoną wartość (0..1023)
+ 14a:	20 91 78 00 	lds	r18, 0x0078	; 0x800078 <__TEXT_REGION_LENGTH__+0x7f8078>
+ 14e:	30 91 79 00 	lds	r19, 0x0079	; 0x800079 <__TEXT_REGION_LENGTH__+0x7f8079>
+
+    if(v <= MIN_RANGE){
+ 152:	29 3c       	cpi	r18, 0xC9	; 201
+ 154:	31 05       	cpc	r19, r1
+ 156:	28 f4       	brcc	.+10     	; 0x162 <main+0x94>
+      OCR1A = 0;
+ 158:	10 92 89 00 	sts	0x0089, r1	; 0x800089 <__TEXT_REGION_LENGTH__+0x7f8089>
+ 15c:	10 92 88 00 	sts	0x0088, r1	; 0x800088 <__TEXT_REGION_LENGTH__+0x7f8088>
+ 160:	eb cf       	rjmp	.-42     	; 0x138 <main+0x6a>
+    } else if (v >= MAX_RANGE){
+ 162:	24 3f       	cpi	r18, 0xF4	; 244
+ 164:	81 e0       	ldi	r24, 0x01	; 1
+ 166:	38 07       	cpc	r19, r24
+ 168:	48 f0       	brcs	.+18     	; 0x17c <main+0xae>
+      OCR1A = ICR1;
+ 16a:	80 91 86 00 	lds	r24, 0x0086	; 0x800086 <__TEXT_REGION_LENGTH__+0x7f8086>
+ 16e:	90 91 87 00 	lds	r25, 0x0087	; 0x800087 <__TEXT_REGION_LENGTH__+0x7f8087>
+ 172:	90 93 89 00 	sts	0x0089, r25	; 0x800089 <__TEXT_REGION_LENGTH__+0x7f8089>
+ 176:	80 93 88 00 	sts	0x0088, r24	; 0x800088 <__TEXT_REGION_LENGTH__+0x7f8088>
+ 17a:	de cf       	rjmp	.-68     	; 0x138 <main+0x6a>
+    } else {
+      OCR1A = values[(32 * ((uint32_t)v - MIN_RANGE) * 100 / (MAX_RANGE - MIN_RANGE)) / 100];
+ 17c:	a0 e8       	ldi	r26, 0x80	; 128
+ 17e:	bc e0       	ldi	r27, 0x0C	; 12
+ 180:	0e 94 fa 00 	call	0x1f4	; 0x1f4 <__umulhisi3>
+ 184:	74 5c       	subi	r23, 0xC4	; 196
+ 186:	89 40       	sbci	r24, 0x09	; 9
+ 188:	91 09       	sbc	r25, r1
+ 18a:	a7 01       	movw	r20, r14
+ 18c:	96 01       	movw	r18, r12
+ 18e:	0e 94 d8 00 	call	0x1b0	; 0x1b0 <__udivmodsi4>
+ 192:	22 0f       	add	r18, r18
+ 194:	33 1f       	adc	r19, r19
+ 196:	e1 e0       	ldi	r30, 0x01	; 1
+ 198:	f0 e0       	ldi	r31, 0x00	; 0
+ 19a:	ec 0f       	add	r30, r28
+ 19c:	fd 1f       	adc	r31, r29
+ 19e:	e2 0f       	add	r30, r18
+ 1a0:	f3 1f       	adc	r31, r19
+ 1a2:	80 81       	ld	r24, Z
+ 1a4:	91 81       	ldd	r25, Z+1	; 0x01
+ 1a6:	90 93 89 00 	sts	0x0089, r25	; 0x800089 <__TEXT_REGION_LENGTH__+0x7f8089>
+ 1aa:	80 93 88 00 	sts	0x0088, r24	; 0x800088 <__TEXT_REGION_LENGTH__+0x7f8088>
+ 1ae:	c4 cf       	rjmp	.-120    	; 0x138 <main+0x6a>
+
+000001b0 <__udivmodsi4>:
+ 1b0:	a1 e2       	ldi	r26, 0x21	; 33
+ 1b2:	1a 2e       	mov	r1, r26
+ 1b4:	aa 1b       	sub	r26, r26
+ 1b6:	bb 1b       	sub	r27, r27
+ 1b8:	fd 01       	movw	r30, r26
+ 1ba:	0d c0       	rjmp	.+26     	; 0x1d6 <__udivmodsi4_ep>
+
+000001bc <__udivmodsi4_loop>:
+ 1bc:	aa 1f       	adc	r26, r26
+ 1be:	bb 1f       	adc	r27, r27
+ 1c0:	ee 1f       	adc	r30, r30
+ 1c2:	ff 1f       	adc	r31, r31
+ 1c4:	a2 17       	cp	r26, r18
+ 1c6:	b3 07       	cpc	r27, r19
+ 1c8:	e4 07       	cpc	r30, r20
+ 1ca:	f5 07       	cpc	r31, r21
+ 1cc:	20 f0       	brcs	.+8      	; 0x1d6 <__udivmodsi4_ep>
+ 1ce:	a2 1b       	sub	r26, r18
+ 1d0:	b3 0b       	sbc	r27, r19
+ 1d2:	e4 0b       	sbc	r30, r20
+ 1d4:	f5 0b       	sbc	r31, r21
+
+000001d6 <__udivmodsi4_ep>:
+ 1d6:	66 1f       	adc	r22, r22
+ 1d8:	77 1f       	adc	r23, r23
+ 1da:	88 1f       	adc	r24, r24
+ 1dc:	99 1f       	adc	r25, r25
+ 1de:	1a 94       	dec	r1
+ 1e0:	69 f7       	brne	.-38     	; 0x1bc <__udivmodsi4_loop>
+ 1e2:	60 95       	com	r22
+ 1e4:	70 95       	com	r23
+ 1e6:	80 95       	com	r24
+ 1e8:	90 95       	com	r25
+ 1ea:	9b 01       	movw	r18, r22
+ 1ec:	ac 01       	movw	r20, r24
+ 1ee:	bd 01       	movw	r22, r26
+ 1f0:	cf 01       	movw	r24, r30
+ 1f2:	08 95       	ret
+
+000001f4 <__umulhisi3>:
+ 1f4:	a2 9f       	mul	r26, r18
+ 1f6:	b0 01       	movw	r22, r0
+ 1f8:	b3 9f       	mul	r27, r19
+ 1fa:	c0 01       	movw	r24, r0
+ 1fc:	a3 9f       	mul	r26, r19
+ 1fe:	70 0d       	add	r23, r0
+ 200:	81 1d       	adc	r24, r1
+ 202:	11 24       	eor	r1, r1
+ 204:	91 1d       	adc	r25, r1
+ 206:	b2 9f       	mul	r27, r18
+ 208:	70 0d       	add	r23, r0
+ 20a:	81 1d       	adc	r24, r1
+ 20c:	11 24       	eor	r1, r1
+ 20e:	91 1d       	adc	r25, r1
+ 210:	08 95       	ret
+
+00000212 <_exit>:
+ 212:	f8 94       	cli
+
+00000214 <__stop_program>:
+ 214:	ff cf       	rjmp	.-2      	; 0x214 <__stop_program>
