@@ -1,0 +1,1 @@
+During the Algorithms and Data Structures course we had some not so easy problems with time and memory constraints to implement using a low-level language and algorithms/data structures learned during the course.
