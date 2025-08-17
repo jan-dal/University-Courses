@@ -1,0 +1,1 @@
+sudo docker run --rm -it -v /home/jan/krypt/lista3/zad10/fastcoll:/work -w /work -u 1000: brimstone/fastcoll --prefixfile prefix -o msg1.bin msg2.bin

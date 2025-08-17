@@ -1,0 +1,3 @@
+gpg --export-secret-key key-id | paperkey --output secret-key-paper.asc
+paperkey --pubring public-key.gpg --secrets secret-key-paper.asc --output secret-key.gpg
+

@@ -1,0 +1,2 @@
+gpg --armor --export 321217@uwr.edu.pl
+gpg --list-packets 321217.asc

@@ -1,0 +1,133 @@
+# Certyfikat X509
+
+Certificate: SEQUENCE {
+	
+	# Pola opisujące wydawcę oraz podmiot certyfikatu
+	
+	tbsCertificate: SEQUENCE {
+
+		# Wersja certyfikatu {1, 2, 3}
+		version: INTEGER
+		
+		# Unikatowy numer seryjny certyfikatu dla danego CA
+		serialNumber: up to OCTET(20)
+		
+		# Algorytm używany przez CA do podpisów
+		signature: OBJECT
+
+		# Wydawca certyfikatu
+		issuer: SEQUENCE {
+			# Wymagana implementacja
+			country
+			organization
+			organizational unit
+			distinguished name qualifier
+			state or province name
+			common name
+			serial number
+
+			# Zalecana implementacja
+			locality
+			title
+			surname
+			given name
+			initialis
+			psudonym
+			generation qualifier
+		}
+
+		# Okres ważności
+		validity: SEQUENCE {
+			notBefore: UTCTIME
+			notAfter: UTCTIME
+		}
+
+		# Podmiot certyfikatu
+		subject: SEQUENCE 
+
+		# Klucz publiczny podmiotu
+		subjectPublicKeyInfo: SEQUENCE {
+			# Algorytm związany z kluczem publicznym
+			algorithm: OBJECT
+			
+			# Klucz publiczny
+			subjectPublicKey: BIT STRING
+		}
+		
+		# (wersja v2, v3)
+		# Identyfikator w razie powtórzenia Issuer gdy się jednak różnią
+		issuerUniqueID: OPTIONAL
+		subjectUniqueID: OPTIONAL
+
+		# Rozszerzenia (wersja v3)
+		extensions: SEQUENCE OPTIONAL {
+			# Standardowe rozszerzenia
+
+			# Identyfikacja klucza publicznego podpisującego wydawcy
+			authorityKeyIdentifier: {
+				# Identyfikator klucza publicznego
+				# 1. SHA1 z wartości klucza
+				# 2. 0x4 || 60 najmniej znaczących bitów SHA1 klucza
+				keyIdentifier
+
+				# Dane wydawcy
+				authorityCertIssuer
+
+				# Numer seryjny certyfikatu wydawcy
+				authorityCertSetrialNumber
+			}
+			
+			# Identyfikacja klucza publicznego podmiotu
+			subjectKeyIdentifier: {
+				keyIdentifier
+			}
+
+			# Cel klucza podmiotu
+			KeyUsage: {
+				# Weryfikacja podpisów innych niż certyfikaty
+				digitalSignature
+
+				# (contentCommitment) 
+				# Właściciel klucza nie może zaprzeczyć podpisowi
+				# Wskazuje na istnienie strony trzeciej która może
+				# zweryfikować autentyczność podpisu. Np. sytuacja 
+				# w której podpis jest związany prawnie.
+				nonRepudiation
+				
+				# Klucz publiczny jest użyty do szyfrowania kluczy
+				# Np. kluczy AES
+				keyEncipherment
+				
+				# Klucz publiczy jest użyty do szyfrowania plaintekstu 
+				dataEncipherment
+				
+				# Klucz jest użyty w procesie key agreement
+				keyAgreement
+
+				# Klucz publiczny weryfikuje certyfikaty
+				keycertSign
+
+				# Klucz publiczny weryfikuje CRL
+				cRLSign
+
+				# Użyty jedynie do szyfrowania danych podczas key agreement
+				encipherOnly
+
+				# Użyty jedynie do deszyfrowania danych podczas key agreement
+				decipherOnly
+			}
+			...
+		}
+
+
+	}
+
+	# Algorytm użyty przez CA do podpisania certyfikatu
+	signatureAlgorithm: SEQUENCE {
+		algorithm
+		parameters
+	}
+
+	# Wartość podpisu formatu ASN.1 DER pola tbsCertificate
+	signatureValue 
+}

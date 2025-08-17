@@ -1,0 +1,53 @@
+[ca]
+default_ca=CA
+
+[CA]
+days=365
+new_certs_dir=../out_certs
+certificate=../secrets/CN_CA.crt
+private_key=../secrets/pk.pem
+default_md=sha256
+database=db
+serial=serial
+policy=ca_policy
+default_crl_days=10
+
+
+[ca_policy]
+countryName=match
+stateOrProvinceName=supplied
+organizationName=supplied
+organizationalUnitName=optional
+commonName=supplied
+emailAddress=optional
+
+[req]
+distinguished_name=name
+x509_extensions=ca_x509_ext
+
+# Źródło losowości dla generatora liczb losowych
+RANDFILE=random
+
+# Liczba bitów klucza
+default_bits=4096
+
+# Nazwa wygenerowanego klucza
+default_keyfile=priv.pem
+
+# Zapytania o opcje
+prompt=no
+
+[name]
+countryName="PL"
+stateOrProvinceName="Dolnyśląsk"
+localityName="Wrocław"
+organizationName="Cyfrowy Notariusz"
+organizationalUnitName="Notariusz Wrocławski"
+commonName="notariusz.pl"
+emailAddress="sekretariat@notariusz.pl"
+
+[ca_x509_ext]
+basicConstraints=critical, CA:TRUE
+subjectKeyIdentifier=hash
+keyUsage=critical, digitalSignature, keyCertSign, cRLSign
+

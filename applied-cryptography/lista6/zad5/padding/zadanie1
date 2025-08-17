@@ -1,0 +1,121 @@
+#!/usr/bin/python3
+import gmpy2
+from gmpy2 import mpz, c_div, f_div, powmod
+import rsa.rsa as rsa
+import rsa.pkcs15pad as pad
+from rsa.oracle import Oracle
+from sys import argv
+
+keyFile = 'bleichenbacher/RSAkey2'
+ciphertextFile = 'bleichenbacher/cipher2.txt'
+
+print("""All you need is the encryption key, the eavesdropped ciphertext,
+and the oracle. The oracle needs the private key, so in fact the key
+we read here is private. Pretend you do not have access to the private
+part!""")
+
+key = rsa.read(keyFile)
+with open(ciphertextFile) as cf:
+    ciphertext = int(cf.readline().strip())
+oracle = Oracle(key).oracle
+
+print('This is your key of size {} bits ({} bytes):'.format
+         (key.keyBits, key.keyBytes))
+print('n =', key.n)
+print('e =', key.e)
+print('ciphertext =', ciphertext)
+print('oracle =', oracle)
+print('Now is YOUR turn!')
+
+n = mpz(key.n)
+e = mpz(key.e)
+m = mpz(ciphertext)
+
+k = key.keyBytes
+B = mpz(1 << 8*(k-2))
+a0 = (B << 1)
+b0 = a0+B-1
+s0 = c_div(n+a0, b0)-1
+print(f"a0 = {a0}")
+print(f"b0 = {b0}")
+print(f"s_start = {s0}")
+
+def find_Mi(Mi, si):
+    M = []
+    for inter in Mi:
+        ra = c_div(inter[0]*si-b0, n)
+        rb = f_div(inter[1]*si-a0, n)
+        
+        for r in range(ra, rb+1):
+            tmp = r*n
+            a = c_div(a0+tmp, si)
+            b = f_div(b0+tmp, si)
+            
+            for e in Mi:
+                am, bm = e 
+                if a < am:
+                    if am <= b <= bm:
+                        M.append([am, b])
+                if am <= a <= bm:
+                    if b <= bm:
+                        M.append([a, b])
+                    else:
+                        M.append([a, bm])
+    return M
+
+def check_oracle(s):
+    c = m*powmod(s, e, n) % n
+    return oracle(int(c)) == pad.ErrorCode.SUCCESS
+
+def phase1(s0):
+    si = s0
+    Mi = [[a0, b0]]
+    i = 1
+    while(True):
+        while not check_oracle(si):
+            si += 1
+        print(f"After {oracle.__self__.count()} calls, found s{i} = {si}")
+        Mi = find_Mi(Mi, si)
+        print(f"|Mi| = {len(Mi)}")
+        if (len(Mi) == 1):
+            break
+        si += 1
+        i += 1
+    print("Phase 1 completed!")
+    print(f"a1 = {Mi[0][0]}")
+    print(f"b1 = {Mi[0][1]}")
+    return Mi, si
+
+M, si = phase1(s0)
+
+A = [a0, M[0][0]]
+B = [b0, M[0][1]]
+
+def find_si(r):
+    sa = c_div(a0+r*n, B[-1])
+    sb = f_div(b0+r*n, A[-1])
+    for i in range(sa, sb+1):
+        if check_oracle(i):
+            return i
+    return None
+
+def find_ri(si):
+    r = c_div(2*B[-1]*si - a0, n)
+    si = find_si(r)
+    while si == None:
+        r += 1
+        si = find_si(r)
+    A.append(c_div(a0+r*n, si))
+    B.append(f_div(b0+r*n, si))
+    return si
+
+def phase2(si):
+    while (A[-1] != B[-1]):
+        si = find_ri(si)
+        print(f"b-a bits: {int(B[-1]-A[-1]).bit_length():04d}", end="\r")
+    return rsa.from_int(int(A[-1]))
+
+message = phase2(si)
+
+print(f"Total {oracle.__self__.count()} calls")
+print(message)

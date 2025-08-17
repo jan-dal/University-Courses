@@ -1,0 +1,5 @@
+authorityKeyIdentifier=keyid:always, issuer:always
+basicConstraints=CA:FALSE
+keyUsage=digitalSignature, nonRepudiation, keyEncipherment, keyAgreement
+subjectAltName=email:copy, DNS:www.krypto.example, IP:127.0.0.1
+

@@ -1,0 +1,7 @@
+W razie konieczności unieważnienia certyfikatu przez upływem jego ważności CA lub upoważnione podmioty co jakiś czas wydaje podpisaną listę (CRL) certyfikatów unieważnionych.
+
+Certyfikaty w liście CRL są identyfikowane przez numer seryjny.
+
+OSPC to protokół, który pozwala na sprawdzenie stanu certyfikatu bez sprawdzania CRL. 
+
+

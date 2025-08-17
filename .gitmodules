@@ -1,0 +1,3 @@
+[submodule "applied-cryptography/lista3/zad2/isa-l_crypto"]
+	path = applied-cryptography/lista3/zad2/isa-l_crypto
+	url = https://github.com/intel/isa-l_crypto.git

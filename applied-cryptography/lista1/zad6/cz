@@ -1,0 +1,6 @@
+#!/bin/bash
+
+for LETTER in $(sed "s/\(.\)/\1\n/g" $1 | \
+sort | tr "\n" " " | sed ":l s/\(.\) \1/\1\1/; t l" | \
+tr " " "\n" ); do echo -n "$(cut -c 1 <<< $LETTER) "; \
+wc -c <<< $LETTER; done | sort -n -k 2 -r

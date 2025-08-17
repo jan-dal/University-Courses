@@ -1,0 +1,14 @@
+# Generowanie klucza prywatnego szyfrowanego aes256
+openssl genrsa -aes256 -out pk.pem 4096
+
+# Wygenerowanie certyfikatu CA
+openssl req -x509 -config ca.cnf -key pk.pem -out cert.pem
+
+# Wypisz dane certyfikatu
+openssl x509 -in cert.pem -text -noout
+
+# Nowy csr od www.krypto.example
+openssl req -new -config krypt.cnf -out krypt_csr.pem
+
+# Podpisanie certyfikatu www.krypto.example
+openssl ca -in ../../krypto_example/krypt_csr.pem -config ca.cnf -extfile x509_ext.cnf -days 365 -out krypt_cert.pem
