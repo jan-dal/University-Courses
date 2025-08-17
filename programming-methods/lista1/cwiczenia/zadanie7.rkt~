@@ -1,0 +1,15 @@
+#lang racket
+(define (power-close-to b n)
+  (define (can_be_lower? e)
+    (is_bigger? (- e 1))
+    )
+  (define (is_bigger? e)
+    (> (expt b e) n)
+    )
+  (define (iter e)
+    (cond [(and (can_be_lower? e) (is_bigger? e)) (iter (- e 1))]
+          [(not (is_bigger? e)) (iter (+ e 1))]
+          [else e])
+    )
+  
+  (iter 1))

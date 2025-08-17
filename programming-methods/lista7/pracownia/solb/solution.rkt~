@@ -1,0 +1,104 @@
+#lang racket
+
+(provide (struct-out const) (struct-out binop) (struct-out var-expr)
+		 (struct-out var-dead) (struct-out let-expr) find-dead-vars)
+
+
+; --------- ;
+; Wyrazenia ;
+; --------- ;
+
+(struct const    (val)      #:transparent)
+(struct binop    (op l r)   #:transparent)
+(struct var-expr (id)       #:transparent)
+(struct var-dead (id)       #:transparent)
+(struct let-expr (id e1 e2) #:transparent)
+
+(define (expr? e)
+  (match e
+    [(const n) (number? n)]
+    [(binop op l r) (and (symbol? op) (expr? l) (expr? r))]
+    [(var-expr x) (symbol? x)]
+    [(var-dead x) (symbol? x)]
+    [(let-expr x e1 e2) (and (symbol? x) (expr? e1) (expr? e2))]
+    [_ false]))
+
+(define (parse q)
+  (cond
+    [(number? q) (const q)]
+    [(symbol? q) (var-expr q)]
+    [(and (list? q) (eq? (length q) 3) (eq? (first q) 'let))
+     (let-expr (first (second q))
+               (parse (second (second q)))
+               (parse (third q)))]
+    [(and (list? q) (eq? (length q) 3) (symbol? (first q)))
+     (binop (first q)
+            (parse (second q))
+            (parse (third q)))]))
+
+; ---------------------------------- ;
+; Wyszukaj ostatnie uzycie zmiennych ;
+; ---------------------------------- ;
+
+(define test0 (parse '(let (x 3) (+ x (let (x 5) (+ x x))))))
+(define test1 (parse '(let (y 3) (+ x x))))
+(define test2 (parse '(let (y (let (x 3) (+ x 3))) (+ x y))))
+(define test3 (parse '(let (y (let (x 3) (+ x y))) (+ y 6))))
+(define test4 (parse '(let (y (let (x 3) (+ x 2))) (+ y (let (x y) (/ 3 x))))))
+(define test5 (parse '(let (x 3) (let (y x) y))))
+
+(define (find-dead-vars e)
+
+  ;; Zwróć prawdę jeśli zmienna x występuje w e
+
+  (define (found? x e)
+    (match e
+      [(const n) #f]
+      [(binop op e1 e2) (or (found? x e1) (found? x e2))]
+      [(var-expr id) (eq? id x)]
+      [(let-expr id e1 e2) (if (eq? id x)
+                               (found? x e1)
+                               (or (found? x e1) (found? x e2)))]
+      [_ false]))
+
+  ;; Tutaj nie będzie dead-variable dla x, ponieważ znaleźliśmy jakiś x w prawej gałęzi
+  
+  (define (change e x)
+    (match e
+      [(const n) (const n)]
+      [(binop op e1 e2) (binop op (change e1 x) (change e2 x))]
+      [(var-expr id) (if (eq? x id) (var-expr id) (error "Unbound variable"))]
+      [(let-expr id e1 e2) (if (eq? id x)
+                               (find-dead-vars (let-expr id (change e1 x) e2))
+                               (find-dead-vars (let-expr id (change e1 x) (change e2 x))))]
+      [_ false]))
+
+
+  ;; Wyszukaj dead-variable, gdy napotkamy rozgałęzienie to sprawdź czy należy szukać
+  ;; dalej ostatniej zmiennej x w prawej gałęzi czy wystarczy w lewej
+  
+  (define (search e x)
+    (match e
+      [(const n) (const n)]
+      [(binop op e1 e2) (if (found? x e2)
+                            (binop op (change e1 x) (search e2 x))
+                            (binop op (search e1 x) (find-dead-vars e2)))]
+      [(var-expr id) (if (eq? id x) (var-dead id) (error "Unbound variable"))]
+      [(let-expr id e1 e2) (cond
+                             [(and (eq? id x) (not (found? x e1)))
+                              (find-dead-vars (let-expr id e1 e2))]
+                             [(and (not (eq? id x)) (found? x e2))
+                              (find-dead-vars (let-expr id (change e1 x) (search e2 x)))]
+                             [else
+                              (find-dead-vars (let-expr id (search e1 x) e2))])]
+      [_ false]))
+
+  (match e
+    [(const n) (const n)]
+    [(binop op e1 e2) (binop op (find-dead-vars e1) (find-dead-vars e2))]
+    [(var-expr id) (error "Unbound variable")]
+    [(var-dead id) (var-dead id)]
+    [(let-expr id e1 e2) (let-expr id (find-dead-vars e1) (search e2 id))]
+    [_ false]))
+                    
+

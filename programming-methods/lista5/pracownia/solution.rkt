@@ -1,0 +1,203 @@
+#lang racket
+
+(require "sudoku-spec.rkt")
+
+(provide
+  rows->board board-rows board-columns board-boxes ; Zad A
+  partial-solution-ok? solutions )                 ; Zad B
+
+;; =========
+;; Zadanie A
+;; =========
+
+(define (lenght row)
+  (if (null? row)
+      0
+      (+ 1 (lenght (cdr row)))))
+(define (rows->board xss)
+  (define n
+    (sqrt (lenght (car xss))))
+
+  (define (get-k x y)
+   (+ (* n (floor (/ y n))) (floor (/ x n))))
+
+  
+  (define (f row x y k)
+    (if (null? row)
+        null
+        (cons (list x y k (car row)) (f (cdr row) (+ 1 x) y (get-k (+ 1 x) y)))))
+  
+  (define (combine y xss)
+    (if (null? xss)
+        null
+        (cons (f (car xss) 0 y (get-k 0 y)) (combine (+ 1 y) (cdr xss)))))
+  (combine 0 xss))
+
+
+;; Ujawnia listę wierszy (każdy wiersz to lista znaków z alfabetu)
+(define (board-rows board)
+  (if (null? board)
+      null
+  (cons (map fourth (car board)) (board-rows (cdr board)))))
+
+;; Ujawnia listę kolumn (każda kolumna to lista znaków z alfabetu)
+(define (board-columns board)
+
+  (define (nth row k)
+    (if (null? row)
+        null
+        (if (<= k 0)
+            (fourth (car row))
+            (nth (cdr row) (- k 1)))))
+  
+  (define (collumn k board)
+    (if (null? board)
+        null
+        (cons (nth (car board) k) (collumn k (cdr board)))))
+
+  (define (iter c)
+    (if (= (length (car board)) c)
+        null
+        (cons (collumn c board) (iter (+ 1 c)))))
+
+  (iter 0))
+
+;; Ujawnia listę pudełek (każde pudełko to lista znaków z alfabetu)
+(define (board-boxes board)
+
+  (define (box-row k row)
+    (if (null? row)
+        null
+        (if (= (third (car row)) k)
+           (cons (fourth (car row)) (box-row k (cdr row)))
+           (box-row k (cdr row)))))
+  
+  (define (box k board)
+    (if (null? board)
+        null
+        (if (null? (box-row k (car board)))  
+          (box k (cdr board))
+          (append (box-row k (car board)) (box k (cdr board))))))
+
+  (define (iter b)
+    (if (= (length (car board)) b)
+        null
+        (cons (box b board) (iter (+ 1 b)))))
+  
+  (iter 0))
+
+;; =========
+;; Zadanie B
+;; =========
+
+;; Czy dane częściowe rozwiązanie (elems, rows) jest
+;; poprawne?
+(define (partial-solution-ok? initial-board elems rows)
+  
+  (define n (length initial-board))
+  (define k (length rows))
+  (define q (length elems))
+  (define rows+elems
+    (if (eq? elems '())
+        k
+        (+ 1 k)))
+  (define (nth k p rows)
+    (if (= k p)
+        (car rows)
+        (nth k (+ 1 p) (cdr rows))))
+
+       
+;; Utwóż planszę z częściowym rozwiązaniem
+
+  (define (create-row row i)
+    (if (= i 0)
+        elems
+        (cons (car row) (create-row (cdr row) (- i 1)))))
+  
+  (define (create-rows br k p)
+    (if (= p 1)
+        rows
+        (if (= k 1)
+            (cons (create-row (car br) (- n (length elems))) (create-rows br 0 1))
+            (cons (car br) (create-rows (cdr br) (- k 1) 0)))))
+
+;; Sprawdź czy można wpisać
+  (define (can-be-entered? rows1 rows2)
+
+    (define (check row1 row2)
+      (if (or (null? row1) (null? row2))
+          #t
+          (if (or
+                (or (eq? (car row1) '_) (eq? (car row2) '_))
+                (ch-eq? (car row1) (car row2)))
+             (if (and (if (or (eq? (car row1) '_ ) (list? (member (car row1) alphabet))) #t #f)
+                     (if (or (eq? (car row2) '_ ) (list? (member (car row2) alphabet))) #t #f))
+                  (check (cdr row1) (cdr row2))
+                   #f)
+             #f)))
+    
+    (if (or (null? rows1) (null? rows2))
+        #t
+        (if (check (car rows1) (car rows2))
+            (can-be-entered? (cdr rows1) (cdr rows2))
+            #f)))
+  
+  
+;; Sprawdź wiersze,kolumny i pudełka
+  
+  (define (check-rows rows)
+    (define (check-row row)
+      (define (eqelement? e row)
+        (if (null? row)
+            #t
+            (if (and (not (eq? (car row) '_)) (ch-eq? e (car row)))
+                #f
+                (eqelement? e (cdr row)))))
+      
+      (if (null? row)
+          #t
+          (if (or (eq? (car row) '_) (eqelement? (car row) (cdr row)))
+              (check-row (cdr row))
+              #f)))
+    
+    (if (null? rows)
+        #t
+        (if (check-row (car rows))
+            (check-rows (cdr rows))
+            #f)))
+  
+  (define partsol (rows->board (create-rows (board-rows initial-board) (- n k) 0)))
+  (if (can-be-entered? (board-rows initial-board) (board-rows partsol))
+      (and (check-rows (board-rows partsol)) (check-rows (board-columns partsol))
+           (check-rows (board-boxes partsol)))
+       #f))
+
+;; Lista poprawnych częściowych wierszy po dodaniu
+;; nowego znaku do jakiegoś częściowego rozwiązania
+;; (elems, rows)
+(define (new-elems initial-board elems rows)
+  (filter
+   (λ(es) (partial-solution-ok? initial-board es rows))
+   (map (λ(c) (cons c elems)) alphabet)))
+
+;; Lista poprawnych wierszy możliwych do dodania do
+;; częściowego rozwiązania zawierającego tylko pełne
+;; wiersze (rows)
+(define (new-rows initial-board rows)
+  (map (λ(r) (cons r rows))
+       (foldr (λ(_ ess)
+                (append-map
+                 (λ(es) (new-elems initial-board es rows))
+                 ess))
+              (list null)
+              alphabet)))
+
+;; Lista poprawnych pełnych rozwiązań
+(define (solutions initial-board)
+  (map (λ(s) (rows->board s))
+       (foldr (λ(_ rss)
+                (append-map
+                 (λ(rs) (new-rows initial-board rs))
+                 rss))
+              (list null)
+              alphabet)))

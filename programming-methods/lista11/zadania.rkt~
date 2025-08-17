@@ -1,0 +1,15 @@
+#lang racket
+(define/contract (suffixes xs) (-> list? list?)
+  (if (null? xs)
+      null
+      (cons xs (suffixes (cdr xs)))))
+
+
+(define list-of-lists/c? (lambda (x) (andmap list? x))) 
+
+(define/contract (sublists xs) (-> list? list-of-lists/c?)
+  (if (null? xs)
+      (list null)
+      (append-map
+       (lambda (ys) (list (cons (car xs) ys) ys))
+       (sublists (cdr xs)))))

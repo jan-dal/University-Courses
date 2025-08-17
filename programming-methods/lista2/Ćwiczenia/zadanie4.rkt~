@@ -1,0 +1,17 @@
+#lang racket
+(define (f x) (/ (+ (* 4 x x ) (* 8 x) 4) (+ (* 4 x x ) (* 8 x) 3)))
+
+(define (prod-rek val next a b)
+  (if (> a b)
+      1
+      (* (val a) (prod-rek val next (next a) b))
+      )
+  )
+
+
+(define (prod-iter val next mult a b)
+  (if (> a b)
+      mult 
+      (prod-iter val next (* mult (val a)) (next a) b)
+      )
+  )

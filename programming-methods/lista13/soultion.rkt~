@@ -1,0 +1,115 @@
+#lang plait
+(define-type-alias Subst (Listof (Symbol * S-Exp)))
+(define-type-alias Eq (S-Exp * S-Exp))
+(define-type-alias Eqs (Listof Eq))
+
+
+(define (zip xs ys)
+  (if (or (empty? xs) (empty? ys))
+      empty
+      (cons (pair (first xs) (first ys)) (zip (rest xs) (rest ys)))))
+
+
+
+
+
+(define (sublist x val xs)
+  (type-case (Listof S-Exp) xs
+    [empty '()]
+    [(cons p ps)
+     (cond
+       [(s-exp-symbol? p)
+        (if (equal? p x)
+            (cons val (sublist x val ps))
+            (cons p (sublist x val ps)))]
+       [(s-exp-list? p)
+        (let ([nl (sublist x val (s-exp->list p))])
+          (append nl (sublist x val ps)))]
+       [else (cons p (sublist x val ps))])]))
+
+
+
+(define (substitute-single x val xs)
+  (type-case Eqs xs
+    [empty empty]
+    [(cons p ps)
+     (let ([el (fst p)]
+           [er (snd p)])
+       (cond
+         [(and (s-exp-symbol? el) (equal? el x))
+          (cons (pair val er) (substitute-single x val ps))]
+         [(and (s-exp-symbol? er) (equal? er x))
+          (cons (pair val el) (substitute-single x val ps))]
+         [(s-exp-list? el) (cons (pair (list->s-exp (sublist x val (s-exp->list el))) er) (substitute-single x val ps))]
+         [(s-exp-list? er) (cons (pair el (list->s-exp (sublist x val (s-exp->list er)))) (substitute-single x val ps))]
+         [else (cons p (substitute-single x val ps))]))]))
+
+
+
+(define (substitute-all xs newxs)
+  (type-case Eqs xs
+    [empty newxs]
+    [(cons p ps)
+     (let ([el (fst (first newxs))]
+           [er (snd (first newxs))])
+       (cond
+         [(s-exp-symbol? el)
+          (substitute-all ps (append (substitute-single el er (rest newxs)) (list (first newxs))))]
+         [(s-exp-symbol? er)
+          (substitute-all ps (append (substitute-single er el (rest newxs)) (list (first newxs))))]
+         [else (substitute-all ps (append (rest newxs) (list (first newxs))))]))]))
+
+
+
+
+; Empty - jeżeli istnieje rówanie sprzeczne
+; Eqs - skrócone o równania 
+(define (filterout xs acc)
+  (type-case Eqs xs
+    [empty acc]
+    [(cons p ps)
+     (let ([el (fst p)]
+           [er (snd p)])
+       (cond
+         [(and (s-exp-number? el) (s-exp-number? er))
+          (if (= (s-exp->number el) (s-exp->number er))
+              (filterout ps acc)
+              empty)]
+         [(and (s-exp-boolean? el) (s-exp-boolean? er))
+          (if (equal? (s-exp->boolean el) (s-exp->boolean er))
+              (filterout ps acc)
+              empty)]
+         [(and (s-exp-list? el) (s-exp-list? er)
+               (= (length (s-exp->list el)) (length (s-exp->list er))))
+          (let* ([zp (zip (s-exp->list el) (s-exp->list er))]
+                 [f (filterout zp empty)])
+            (if (empty? f)
+                empty
+                (filterout ps (append acc f))))]
+         [(and (s-exp-symbol? el) (s-exp-symbol? er))
+          (if (equal? (s-exp->symbol el) (s-exp->symbol er))
+              (filterout ps acc)
+              (filterout ps (cons p acc)))]
+         [(and (not (s-exp-symbol? el)) (not (s-exp-symbol? er)))
+          empty]
+         [else (filterout ps (cons p acc))]))]))
+               
+(define test (list (pair `3 `3) (pair `x `3) (pair `(p t y z 5 (z 4 t y)) `((3 4) (z y) 3 4 5 (v 4 t y)))))
+
+
+(define (unify eqs)
+  (let* ([sub (filterout eqs empty)]
+         [p (filterout (substitute-all sub sub) empty)])
+    (type-case Eqs p
+      [empty (none)]
+      [(cons d ds)
+       (local [(define (iter xs)
+                 (if (empty? xs)
+                     empty
+                     (let ([el (fst (first xs))]
+                           [er (snd (first xs))])
+                       (cond
+                         [(s-exp-symbol? el) (cons (pair (s-exp->symbol el) er) (iter (rest xs)))]
+                         [(s-exp-symbol? er) (cons (pair (s-exp->symbol er) el) (iter (rest xs)))]))))]
+         (some (iter p)))])))
+

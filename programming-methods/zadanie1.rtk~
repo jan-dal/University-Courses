@@ -1,0 +1,13 @@
+#lang racket
+
+(provide cube-root)
+
+(define (cube-root x)
+  (define (cube-iter y)
+    (if (ok? y) y
+        (cube-iter y)))
+  (define (ok? y)
+    (< (abs(- (* y y y) x)) 0.001)) 
+
+  
+  (cube-iter 1.0))

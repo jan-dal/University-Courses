@@ -1,0 +1,175 @@
+#lang racket
+
+(provide crack-caesar)
+
+;; ==============
+;; Prosty słownik
+;; ==============
+
+;; W rozwiązaniu wolno oczywiście użyć tej implementacji, ale
+;; pod warunkiem zachowania abstrakcji danych!
+
+;; pusty słownik
+(define dict-empty null)
+
+;; słownik po dodaniu do niego wartości v pod kluczem k
+(define (dict-insert k v d)
+  (if (null? d)
+      (list (cons k v))
+      (if (eq? k (caar d))
+          (cons (cons k v)
+                (cdr d))
+          (cons (car d)
+                (dict-insert k v (cdr d))))))
+
+;; wyszukuje wartość znajdującą się pod kluczem k w słowniku,
+;; jeśli pod takim kluczemi nie ma wartości, wynikiem jest
+;; symbol 'not-found
+(define (dict-lookup k d)
+  (if (null? d)
+      'not-found
+      (if (eq? k (caar d))
+          (cdar d)
+          (dict-lookup k (cdr d)))))
+
+;; Zwraca zawartość słownika w postaci listy par klucz-wartość, np.
+;; > (to-assoc-list (dict-insert 'a 20 (dict-insert 'b 30 dict-empty)))
+;; '((b . 30) (a . 20))
+(define (to-assoc-list d) d)
+
+;; =============================
+;; Caesar z poprzedniego zadania
+;; =============================
+
+(define (caesar alphabet key)
+
+  ; Długość listy 
+  
+  (define (lenght xs)
+    (if (null? xs)
+        0
+        (+ 1 (lenght (cdr xs)))))
+
+  ; Obróć listę cyklicznie w prawo 
+     
+  (define (rotate xs key)
+
+    (define shift (modulo (- key) (lenght xs)))
+
+    (define (iter xs ps k d)
+
+      (cond [(and (= k 0) (not (null? ps)))
+             (cons (car ps) (iter xs (cdr ps) 0 0))]
+            [(and (null? ps) (< d shift))
+             (cons (car xs) (iter (cdr xs) null 0 (+ 1 d)))]
+            [(and (null? ps) (>= d shift)) null]
+            [else (iter xs (cdr ps) (- k 1) 0)]))
+    
+    (iter xs xs shift 0))
+
+  ; Połącz elementy na tych samych indeksach
+  
+  (define (zip xs ys)
+    (if (null? xs)
+        null
+        (cons (cons (car xs) (car ys)) (zip (cdr xs) (cdr ys)))))
+
+
+  ; Stwórz listę par kod-litera
+  
+  (define pary
+    (zip (rotate alphabet key) alphabet))
+
+  
+  (define (encode x)
+    (define (iter xs)
+      (if (null? xs)
+          null
+          (if (eq? (caar xs) x)
+              (cdar xs)
+              (iter (cdr xs)))))
+    (iter pary))
+
+  (define (decode x)
+    (define (iter xs)
+      (if (null? xs)
+          null
+          (if (eq? (cdar xs) x)
+              (caar xs)
+              (iter (cdr xs)))))
+    (iter pary))
+  
+  (cons encode decode ))
+
+
+;; ===========
+;; Rozwiązanie
+;; ===========
+
+(define (crack-caesar alphabet by xs)
+
+;; Wyszukuje najczęściej wystęujący element w liście xs
+  
+  (define (max d a m)
+    (if (null? d)
+        (cons a m)
+        (if (< m (cdar d))
+            (max (cdr d) (caar d) (cdar d))
+            (max (cdr d) a m))))
+
+;; Tworzy słownik typu element-ilość powtórzeń w xs ze wszystkich elementów xs 
+  
+  (define (wpisz xs d)
+    (if (null? xs)
+        d
+        (if (number? (dict-lookup (car xs) d))
+            (wpisz (cdr xs) (dict-insert (car xs) (+ 1 (dict-lookup (car xs) d)) d))
+            (wpisz (cdr xs) (dict-insert (car xs) 1 d)))))
+  
+
+;; Sprawdza na której pozycji znajduje się znak w alfabecie
+
+  (define (len alphabet a key)
+    (if (eq? (car alphabet) a)
+        key
+        (len (cdr alphabet) a (+ 1 key))))
+
+;; Oblicza potencjalny klucz
+;; Sprawdza na której pozycji znajduje się znak by w tekście jawnym oraz prawdopodobnie ten sam znak (najczęściej wystepujący) w tekście zakodowanym
+;; Różnica tych pozycji określa odpowiednie przesunięcie do dekodowania
+
+  (define find-key
+     (- (len alphabet by 0) (len alphabet (car(max (wpisz xs null) null 0)) 0)))
+
+
+;; Na podstawie alfabetu i klucza tworzy m.in. dekoder szyfru
+  
+  (define guess (caesar alphabet find-key))
+
+;; Funkcja do testów
+  
+  (define (wypisz a)
+    (if (null? a)
+        null
+        (cons a (wypisz (cdr a)))))
+
+;; Zwraca odszyfrowany tekst w formie listy
+  
+  (map (car  guess) xs))
+
+
+
+
+; Alfabety przydatne do wlasnych testow:
+  (define (wypisz a)
+    (if (null? a)
+        null
+        (cons (car a) (wypisz (cdr a)))))
+
+(define alphabet
+  (let([az (string->list "aąbcćdeęfghijklłmnńoópqrsśtuvwxyzźż")])
+    (list*  #\space  #\. #\, #\!  #\-  #\: #\newline
+            (append  az (map  char-upcase  az)))))
+
+(define(crack-string xs)(list->string (crack-caesar  alphabet  #\space (string->list xs))))
+(define text"ŃukeĘsńwkeBvkĘGfeĘeqĄźłesńleśkteĘevźJtzfjKłGeĘGĘkumHGnexstmHowxleżsóńIeHsowsfjXketĆźĄośexsoewkeńzCnewsośBmkeńzeĘkutsjKxseńzCneńkĄxsfełGeBtĄGvkewzqsvGj-GmrfemzeżzuoqxlęeŁlńIezńĆlńeHkJkĄĆlfjZeĘzuzewzśkfekułzeĘHqkĄńGeĘkĄĆlg")

@@ -1,0 +1,18 @@
+#lang racket
+(struct bdlist (v [prev #:mutable] [next #:mutable]) #:transparent)
+
+(define (list->bdlist xs) 
+  (define (make-bdlist xs beg p q)
+    (cond
+      [(null? xs) beg]
+      [(null? p)
+       (let ((p (bdlist (car xs) null null)))
+         (make-bdlist (cdr xs) p p null))]
+      [else
+       (let ((q (bdlist (car xs) null null)))
+         (begin
+           (set-bdlist-next! p q)
+           (set-bdlist-prev! q p)
+           (make-bdlist (cdr xs) beg q null)))]))
+  (make-bdlist xs null null null))
+      

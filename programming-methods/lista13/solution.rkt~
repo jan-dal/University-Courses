@@ -1,0 +1,5 @@
+#lang plait
+
+(define-type-alias Subst (Listof (Symbol * S-Exp)))
+(define-type-alias Eq (S-Exp * S-Exp))
+(define-type-alias Eqs (Listof Eq))
