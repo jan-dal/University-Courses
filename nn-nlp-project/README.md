@@ -1,0 +1,1 @@
+This is the project we did when finishing the NN and NLP course. It is an implementation with training and testing of the model described in the paper:  [https://arxiv.org/abs/1502.03044](Show, Attend and Tell: Neural Image Caption Generation with Visual Attention). 
